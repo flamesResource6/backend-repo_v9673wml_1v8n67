@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr, HttpUrl
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Example schemas (retain for reference):
 
 class User(BaseModel):
     """
@@ -38,11 +38,28 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Academy schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Course(BaseModel):
+    """Courses offered by the academy"""
+    title: str = Field(..., min_length=2)
+    summary: str = Field(..., min_length=10)
+    duration_weeks: int = Field(..., ge=1, le=104)
+    level: str = Field(..., description="Beginner, Intermediate, Advanced")
+    tags: List[str] = Field(default_factory=list)
+    thumbnail: Optional[HttpUrl] = None
+
+class Instructor(BaseModel):
+    """Instructors teaching at the academy"""
+    name: str
+    title: str
+    bio: str
+    avatar: Optional[HttpUrl] = None
+    specialties: List[str] = Field(default_factory=list)
+
+class Enrollment(BaseModel):
+    """Enrollment application submitted by a learner"""
+    name: str = Field(..., min_length=2)
+    email: EmailStr
+    course_title: str
+    message: Optional[str] = Field(None, max_length=1000)
